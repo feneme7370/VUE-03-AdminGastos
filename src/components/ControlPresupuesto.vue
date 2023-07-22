@@ -1,25 +1,46 @@
 <script setup>
-    import imagen from '../assets/img/grafico.jpg'
+    import { computed } from 'vue';
+    import CircleProgress from 'vue3-circle-progress'
+    import "vue3-circle-progress/dist/circle-progress.css"
+
     import {formatearCantidad} from '../helpers/index.js'
+
+    const emit = defineEmits(['reset-app'])
 
     const props = defineProps({
         presupuesto : {type: Number, deep: true},
+        gastado : {type: Number, deep: true},
         disponible : {type: Number, deep: true}
+    })
+
+    const porcentaje = computed(()=>{
+        // solo acepta enteros la dependencia
+        return parseInt((props.gastado / props.presupuesto) *100)
     })
 </script>
 
 <template>
     <div class="dos-columnas">
         <div class="contenedor-grafico">
-            <img :src="imagen" alt="">
+
+            <p class="porcentaje">{{porcentaje}}%</p>
+            <CircleProgress
+                :percent="porcentaje"
+                :size="250"
+                :border-width="30"
+                :border-bg-width="20"
+                fill-color="#3b82f6"
+                empty-color="#e1e1e1"
+            />
         </div>
         <div class="contenedor-presupuesto">
             <button 
                 class="reset-app"
+                @click="$emit('reset-app')"
             >Resetear App</button>
             <p><span>Presupuesto:</span>  {{ formatearCantidad(presupuesto)}}</p>
             <p><span>Disponible:</span>  {{formatearCantidad(disponible)}}</p>
-            <p><span>Gastado:</span> 0</p>
+            <p><span>Gastado:</span> {{formatearCantidad(gastado)}}</p>
         </div>
     </div>
 </template>
@@ -74,5 +95,20 @@
     .reset-app:hover{
         cursor: pointer;
         background-color: #d22020;
+    }
+    .contenedor-grafico{
+        position: relative;
+    }
+    .porcentaje{
+        position: absolute;
+        margin: auto;
+        top: calc(50% - 1.5rem);
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 100;
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--gris-oscuro);
     }
 </style>
